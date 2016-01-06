@@ -1,0 +1,8 @@
+{
+    "name": "Quick settings on power menu",
+    "description": "Adds quick settings to top edge swipe power menu",
+    "category": "homescreen",
+    "infos": {
+        "maintainer": "AliNa"
+    }
+}
