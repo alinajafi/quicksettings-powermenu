@@ -19,8 +19,8 @@ diff -Nru jolla/usr/share/jolla-settings/entries/sailfishos-patch-quicksettings-
 +    ]
 +}
 diff -Nru jolla/usr/share/jolla-settings/pages/events/events.qml alina/usr/share/jolla-settings/pages/events/events.qml
---- jolla/usr/share/jolla-settings/pages/events/events.qml	2016-01-03 03:20:33.756037980 +0330
-+++ alina/usr/share/jolla-settings/pages/events/events.qml	2016-01-03 03:17:01.192027840 +0330
+--- jolla/usr/share/jolla-settings/pages/events/events.qml	2016-01-20 00:51:35.397137583 +0330
++++ alina/usr/share/jolla-settings/pages/events/events.qml	2016-01-20 00:53:39.133140999 +0330
 @@ -9,12 +9,6 @@
  Page {
      id: page
@@ -41,7 +41,7 @@ diff -Nru jolla/usr/share/jolla-settings/pages/events/events.qml alina/usr/share
 -            TextSwitch {
 -                //% "Setting shortcuts"
 -                text: qsTrId("settings_events-la-settings_shortcuts")
--                //% "Pick your favorite settings to be shown in events. Current selection: %1"
+-                //% "Pick your favorite settings to be shown in events view. Current selection: %1"
 -                description: qsTrId("settings_events-la-settings_shortcuts_description").arg(shortcutList)
 -                automaticCheck: false
 -                checked: eventsScreenShortcutsEnabled.value && shortcutList.length > 0
@@ -59,7 +59,7 @@ diff -Nru jolla/usr/share/jolla-settings/pages/events/events.qml alina/usr/share
 -            TextSwitch {
 -                //% "Quick actions"
 -                text: qsTrId("settings_events-la-quick_actions")
--                //% "Pick your favorite actions to be shown in events. Current selection: %1"
+-                //% "Pick your favorite actions to be shown in events view. Current selection: %1"
 -                description: qsTrId("settings_events-la-quick_actions_description").arg(enabledQuickActions.value)
 -                automaticCheck: false
 -                checked: eventsScreenActionsEnabled.value && enabledQuickActions.value.length > 0
@@ -199,8 +199,8 @@ diff -Nru jolla/usr/share/jolla-settings/pages/events/events.qml alina/usr/share
  }
 diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-powermenu/main.qml alina/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-powermenu/main.qml
 --- jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-powermenu/main.qml	1970-01-01 03:30:00.000000000 +0330
-+++ alina/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-powermenu/main.qml	2016-01-05 03:58:52.578199851 +0330
-@@ -0,0 +1,398 @@
++++ alina/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-powermenu/main.qml	2016-01-31 02:21:31.436391329 +0330
+@@ -0,0 +1,401 @@
 +import QtQuick 2.0
 +import Sailfish.Silica 1.0
 +import com.jolla.settings 1.0
@@ -218,7 +218,6 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +        values = values.concat(enabledShortcuts.values, enabledListShortcuts.values, enabledPageShortcuts.values)
 +        return enabledShortcuts.joined(values)
 +    }
-+    property int selectedMenu: 1
 +
 +    SilicaFlickable {
 +
@@ -248,18 +247,18 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +
 +                //% Edit
 +                label: qsTrId("sailfishos-patch-volumecontrol-la-select_menu")
-+                currentIndex: updateIndex(selectedMenu)
++                currentIndex: updateIndex(powermenuSettings.selectedMenu)
 +
 +                menu: ContextMenu {
 +                    MenuItem {
-+                        //% "Power key menu"
-+                        text: qsTrId("sailfishos-patch-quicksettings-powermenu-la-power_key_menu")
-+                        onClicked: selectedMenu = 1
-+                    }
-+                    MenuItem {
 +                        //% "Top menu"
 +                        text: qsTrId("sailfishos-patch-quicksettings-powermenu-la-top_menu")
-+                        onClicked: selectedMenu = 2
++                        onClicked: powermenuSettings.selectedMenu = 1
++                    }
++                    MenuItem {
++                        //% "Power key menu"
++                        text: qsTrId("sailfishos-patch-quicksettings-powermenu-la-power_key_menu")
++                        onClicked: powermenuSettings.selectedMenu = 2
 +                    }
 +                }
 +
@@ -272,55 +271,6 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +                }
 +            }
 +
-+        //Power key menu
-+            IconTextSwitch {
-+                width: parent.width
-+                //% Profile button
-+                text: qsTrId("sailfishos-patch-quicksettings-powermenu-la-profile_button")
-+                //% Switches silent profile on/off
-+                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-profile_button_description")
-+                icon.source: "image://theme/icon-m-sounds"
-+                visible: selectedMenu == 1
-+                checked: powermenuSettings.powerProfileButton
-+                onClicked: {
-+                    powermenuSettings.powerProfileButton = checked
-+                    powermenuSettings.powerCount = checked ? powermenuSettings.powerCount+1
-+                                                           : powermenuSettings.powerCount-1
-+                }
-+            }
-+
-+            IconTextSwitch {
-+                width: parent.width
-+                //% Reboot button
-+                text: qsTrId("sailfishos-patch-quicksettings-powermenu-la-reboot_button")
-+                //% Fully restarts the device, closing all apps and stopping all services
-+                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-reboot_button_description")
-+                icon.source: "image://theme/icon-m-reboot"
-+                visible: selectedMenu == 1
-+                checked: powermenuSettings.powerRebootButton
-+                onClicked: {
-+                    powermenuSettings.powerRebootButton = checked
-+                    powermenuSettings.powerCount = checked ? powermenuSettings.powerCount+1
-+                                                           : powermenuSettings.powerCount-1
-+                }
-+            }
-+
-+            IconTextSwitch {
-+                width: parent.width
-+                //% Home restart button
-+                text: qsTrId("sailfishos-patch-quicksettings-powermenu-la-home_restart_button")
-+                //% Restarts home screen and closes all running apps
-+                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-home_restart_button_description")
-+                icon.source: "image://theme/icon-m-home"
-+                visible: selectedMenu == 1
-+                checked: powermenuSettings.powerHomeRestartButton
-+                onClicked: {
-+                    powermenuSettings.powerHomeRestartButton = checked
-+                    powermenuSettings.powerCount = checked ? powermenuSettings.powerCount+1
-+                                                           : powermenuSettings.powerCount-1
-+                }
-+            }
-+
 +        // Top menu
 +            IconTextSwitch {
 +                width: parent.width
@@ -329,7 +279,7 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +                //% Switches silent profile on/off
 +                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-profile_button_description")
 +                icon.source: "image://theme/icon-m-sounds"
-+                visible: selectedMenu == 2
++                visible: powermenuSettings.selectedMenu == 1
 +                checked: powermenuSettings.topProfileButton
 +                onClicked: {
 +                    powermenuSettings.topProfileButton = checked
@@ -345,7 +295,7 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +                //% Locks device at once, ignoring automatic locking delay
 +                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-device_lock_button_description")
 +                icon.source: "image://theme/icon-m-device-lock"
-+                visible: selectedMenu == 2
++                visible: powermenuSettings.selectedMenu == 1
 +                checked: powermenuSettings.topDeviceLockButton
 +                onClicked: {
 +                    powermenuSettings.topDeviceLockButton = checked
@@ -362,7 +312,7 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +                //% Restarts home screen and closes all running apps
 +                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-home_restart_button_description")
 +                icon.source: "image://theme/icon-m-home"
-+                visible: selectedMenu == 2
++                visible: powermenuSettings.selectedMenu == 1
 +                checked: powermenuSettings.topHomeRestartButton
 +                onClicked: {
 +                    powermenuSettings.topHomeRestartButton = checked
@@ -378,10 +328,59 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +                //% Enables to close an app when quick closing gesture is disabled
 +                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-close_button_description")
 +                icon.source: "image://theme/icon-close-app"
-+                visible: selectedMenu == 2
++                visible: powermenuSettings.selectedMenu == 1
 +                checked: powermenuSettings.topCloseButton
 +                onClicked: powermenuSettings.topCloseButton = checked
 +                enabled: !desktopSettings.close_from_top
++            }
++
++        //Power key menu
++            IconTextSwitch {
++                width: parent.width
++                //% Profile button
++                text: qsTrId("sailfishos-patch-quicksettings-powermenu-la-profile_button")
++                //% Switches silent profile on/off
++                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-profile_button_description")
++                icon.source: "image://theme/icon-m-sounds"
++                visible: powermenuSettings.selectedMenu == 2
++                checked: powermenuSettings.powerProfileButton
++                onClicked: {
++                    powermenuSettings.powerProfileButton = checked
++                    powermenuSettings.powerCount = checked ? powermenuSettings.powerCount+1
++                                                           : powermenuSettings.powerCount-1
++                }
++            }
++
++            IconTextSwitch {
++                width: parent.width
++                //% Reboot button
++                text: qsTrId("sailfishos-patch-quicksettings-powermenu-la-reboot_button")
++                //% Fully restarts the device, closing all apps and stopping all services
++                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-reboot_button_description")
++                icon.source: "image://theme/icon-m-reboot"
++                visible: powermenuSettings.selectedMenu == 2
++                checked: powermenuSettings.powerRebootButton
++                onClicked: {
++                    powermenuSettings.powerRebootButton = checked
++                    powermenuSettings.powerCount = checked ? powermenuSettings.powerCount+1
++                                                           : powermenuSettings.powerCount-1
++                }
++            }
++
++            IconTextSwitch {
++                width: parent.width
++                //% Home restart button
++                text: qsTrId("sailfishos-patch-quicksettings-powermenu-la-home_restart_button")
++                //% Restarts home screen and closes all running apps
++                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-home_restart_button_description")
++                icon.source: "image://theme/icon-m-home"
++                visible: powermenuSettings.selectedMenu == 2
++                checked: powermenuSettings.powerHomeRestartButton
++                onClicked: {
++                    powermenuSettings.powerHomeRestartButton = checked
++                    powermenuSettings.powerCount = checked ? powermenuSettings.powerCount+1
++                                                           : powermenuSettings.powerCount-1
++                }
 +            }
 +        //
 +            SectionHeader {
@@ -396,7 +395,7 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +                description: qsTrId("settings_events-la-settings_shortcuts_description").arg(shortcutList)
 +                automaticCheck: false
 +                checked: eventsScreenShortcutsEnabled.value && shortcutList.length > 0
-+                enabled: enabledQuickActions.value.length > 0
++                enabled: shortcutList.length > 0
 +                onClicked: eventsScreenShortcutsEnabled.value = !eventsScreenShortcutsEnabled.value
 +            }
 +
@@ -404,6 +403,7 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +                anchors.horizontalCenter: parent.horizontalCenter
 +                //% "Select shortcuts"
 +                text: qsTrId("settings_events-la-select_shortcuts")
++                enabled: eventsScreenShortcutsEnabled.value
 +                onClicked: pageStack.push(shortcutsSelector)
 +            }
 +
@@ -420,7 +420,7 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +                onValueChanged: powermenuSettings.columns = value
 +                onPressAndHold: cancel()
 +                enabled: eventsScreenShortcutsEnabled.value && shortcutList.length > 0
-+                opacity: enabled ? 1.0 : 0.5
++                handleVisible: enabled
 +            }
 +
 +            TextSwitch {
@@ -438,6 +438,7 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +                anchors.horizontalCenter: parent.horizontalCenter
 +                //% "Select actions"
 +                text: qsTrId("settings_events-la-select_actions")
++                enabled: eventsScreenActionsEnabled.value
 +                onClicked: pageStack.push(quickActionsSelector)
 +            }
 +
@@ -449,6 +450,7 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +                description: qsTrId("sailfishos-patch-quicksettings-powermenu-la-events_description")
 +                checked: powermenuSettings.events
 +                onClicked: powermenuSettings.events = checked
++                enabled: eventsScreenShortcutsEnabled.value || eventsScreenActionsEnabled.value
 +            }
 +
 +            TextSwitch {
@@ -474,11 +476,12 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +        property bool topDeviceLockButton: false
 +        property bool topHomeRestartButton: false
 +        property bool topCloseButton: false
-+        property int powerCount: 1
-+        property int topCount: 1
 +        property bool wide: false
 +        property bool events: true
++        property int powerCount: 1
++        property int topCount: 1
 +        property int columns: 4
++        property int selectedMenu: 1
 +    }
 +
 +    ConfigurationValue {
@@ -600,8 +603,8 @@ diff -Nru jolla/usr/share/jolla-settings/pages/sailfishos-patch-quicksettings-po
 +    }
 +}
 diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml alina/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml
---- jolla/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml	2016-01-03 03:21:43.532041309 +0330
-+++ alina/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml	2016-01-05 03:57:21.022197324 +0330
+--- jolla/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml	2016-01-20 00:11:55.225071875 +0330
++++ alina/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml	2016-01-27 13:40:35.339999443 +0330
 @@ -180,7 +180,7 @@
      Item {
          id: shortcutsOverlay
@@ -611,14 +614,13 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml alin
  
          function open(easing) {
              animate(height, easing)
-@@ -198,10 +198,22 @@
+@@ -198,10 +198,21 @@
              shortcutAnimation.restart()
          }
  
 -        width: eventFeedWindow.width
 +        width: (isLandscape && powermenuSettings.wide) ?
 +               Math.min(7.2*Theme.itemSizeExtraLarge, eventFeedWindow.width) : 4 * Theme.itemSizeExtraLarge
-+
          height: shortcutLoader.height
          visible: isOpen || eventFeedWindow.drag.active || shortcutAnimation.running
          anchors.bottom: eventsPannableItem.top
@@ -635,7 +637,7 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml alin
  
          ConfigurationValue {
              id: shortcutsEnabled
-@@ -274,6 +286,7 @@
+@@ -274,6 +285,7 @@
                      y: shortcutsOverlay.isOpen ? shortcutsOverlay.y : eventsPannableItem.y - shortcutsOverlay.height - (eventViewList.contentY - eventViewList.originY)
                      width: shortcutsOverlay.width
                      height: shortcutsOverlay.height + Theme.paddingSmall + Theme.itemSizeExtraLarge * Math.min(1, shortcutsBackground.pos/Theme.itemSizeSmall)
@@ -643,8 +645,8 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml alin
                      visible: !Lipstick.compositor.eventsLayer.housekeeping
                      opacity: Math.max(0, 1.0 - Math.abs(Lipstick.compositor.eventsLayer.dimmedOffset) / (width*2/3))
                      gradient: Gradient {
-@@ -320,7 +333,8 @@
-                             width: parent.width
+@@ -320,7 +332,8 @@
+                             padding: Theme.paddingLarge + Theme.paddingMedium
                              active: shortcutsEnabled.value
                              showListFavorites: true
 -                            columns: 4
@@ -653,8 +655,8 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml alin
                              pager: shortcutFlickable
                          }
  
-@@ -330,7 +344,7 @@
-                             width: parent.width
+@@ -331,22 +344,10 @@
+                             padding: Theme.paddingMedium
                              active: actionsEnabled.value
                              iconSize: Math.floor(Theme.iconSizeMedium * 0.8)
 -                            columns: 2
@@ -662,10 +664,25 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml alin
                              wrapText: true
                              pager: shortcutFlickable
                          }
+-
+-                        IconButton {
+-                            anchors {
+-                                right: parent.right
+-                                rightMargin: Theme.paddingLarge
+-                            }
+-                            icon.source: "image://theme/icon-s-setting"
+-
+-                            onClicked: {
+-                                favoriteSettingsLoader.showEventsSettings()
+-                            }
+-                        }
+                     }
+                 }
+ 
 diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsDelegate.qml alina/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsDelegate.qml
---- jolla/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsDelegate.qml	2016-01-03 03:21:43.580041311 +0330
-+++ alina/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsDelegate.qml	2016-01-03 03:16:08.028025303 +0330
-@@ -93,7 +93,7 @@
+--- jolla/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsDelegate.qml	2016-01-20 00:19:30.169084435 +0330
++++ alina/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsDelegate.qml	2016-01-20 00:20:32.989086169 +0330
+@@ -94,7 +94,7 @@
          target: loader.item
          onClicked: wrapper.clicked()
          onPressAndHold: {
@@ -675,9 +692,9 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsDel
      }
  }
 diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsLoader.qml alina/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsLoader.qml
---- jolla/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsLoader.qml	2016-01-05 04:31:35.150254030 +0330
-+++ alina/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsLoader.qml	2016-01-05 05:46:41.854378444 +0330
-@@ -216,6 +216,10 @@
+--- jolla/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsLoader.qml	2016-01-20 00:22:08.105088795 +0330
++++ alina/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsLoader.qml	2016-01-20 00:24:50.301093272 +0330
+@@ -222,6 +222,10 @@
                          pageSource: Qt.resolvedUrl("FavoriteSettingsItem.qml")
                          onClicked: {
                              if (!Lipstick.compositor.eventsLayer.shortcutsHousekeeping) {
@@ -689,20 +706,28 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/FavoriteSettingsLoa
                              } else {
                                  Lipstick.compositor.eventsLayer.shortcutsHousekeeping = false
 diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/eventsview/QuickActionsLoader.qml alina/usr/share/lipstick-jolla-home-qt5/eventsview/QuickActionsLoader.qml
---- jolla/usr/share/lipstick-jolla-home-qt5/eventsview/QuickActionsLoader.qml	2016-01-03 03:21:43.624041313 +0330
-+++ alina/usr/share/lipstick-jolla-home-qt5/eventsview/QuickActionsLoader.qml	2016-01-03 03:16:08.132025308 +0330
-@@ -99,7 +99,7 @@
+--- jolla/usr/share/lipstick-jolla-home-qt5/eventsview/QuickActionsLoader.qml	2016-01-20 00:25:24.445094215 +0330
++++ alina/usr/share/lipstick-jolla-home-qt5/eventsview/QuickActionsLoader.qml	2016-01-20 00:26:49.485096562 +0330
+@@ -99,8 +99,14 @@
+                         enabled: !wrapper.editMode
                          highlighted: down && enabled
  
-                         onClicked: actionModel.triggerAction(model.index)
+-                        onClicked: actionModel.triggerAction(model.index)
 -                        onPressAndHold: Lipstick.compositor.eventsLayer.shortcutsHousekeeping = !Lipstick.compositor.eventsLayer.shortcutsHousekeeping
++                        onClicked: {
++                            if (Lipstick.compositor.powerKeyLayer.active) {
++                                Lipstick.compositor.powerKeyLayer.hide()
++                                Lipstick.compositor.unlock()
++                            }
++                            actionModel.triggerAction(model.index)
++                        }
 +                        onPressAndHold: if (deviceLock.state < 1) {Lipstick.compositor.eventsLayer.shortcutsHousekeeping = !Lipstick.compositor.eventsLayer.shortcutsHousekeeping}
  
                          Image {
                              id: actionIcon
 diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alina/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml
 --- jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml	2016-01-03 03:21:58.572042026 +0330
-+++ alina/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml	2016-01-05 04:56:30.126295301 +0330
++++ alina/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml	2016-01-31 21:29:34.700714422 +0330
 @@ -9,6 +9,9 @@
  import com.jolla.lipstick 0.1
  import org.freedesktop.contextkit 1.0
@@ -750,7 +775,7 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
          z: powerMenu.count+1
  
          clip: powerTransition.running
-@@ -112,15 +123,11 @@
+@@ -112,15 +123,13 @@
              }
          }
  
@@ -758,7 +783,8 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
 -            anchors.fill: shutdownButton
 -            horizontalOffset: powerMenu.x
 -        }
--
++        RemorsePopup { id: remorse }
+ 
          PowerButton {
              id: shutdownButton
  
@@ -768,7 +794,7 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
              height: powerMenu.itemHeight
  
              offset: lockButton.offset + height
-@@ -134,13 +141,77 @@
+@@ -134,13 +143,80 @@
  
              opacity: Math.max(0.0, Math.min(1.0,
                          (powerMenu.exposure - headerItem.y + powerMenu.contentY)
@@ -808,11 +834,11 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
 +            visible: (shutdownButton.visible && powermenuSettings.powerProfileButton) ||
 +                     (lockButton.visible && powermenuSettings.topProfileButton)
 +            onClicked: {
-+                profileControl.profile = profileControl.profile === "silent" ? "ambience" : "silent"
++                profileControl.profile = profileControl.profile === "silent" ? "general" : "silent"
 +                Lipstick.compositor.powerKeyLayer.hide()
 +            }
-+            iconSource: profileControl.profile === "silent" ? "image://theme/graphic-sound-silent-off"
-+                                                            : "image://theme/graphic-sound-silent-on"
++            iconSource: profileControl.profile === "silent" ? "image://theme/graphic-sound-silent-on"
++                                                            : "image://theme/graphic-sound-silent-off"
 +            opacity: shutdownButton.opacity
 +        }
 +
@@ -829,10 +855,13 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
 +            visible: (shutdownButton.visible && powermenuSettings.powerHomeRestartButton) ||
 +                     (lockButton.visible && powermenuSettings.topHomeRestartButton)
 +            onClicked: {
-+                systemdServiceIface.call("Restart", ["replace"])
-+                Lipstick.compositor.powerKeyLayer.hide()
++                if (shutdownButton.visible) {
++                    systemdServiceIface.call("Restart", ["replace"])
++                    Lipstick.compositor.powerKeyLayer.hide()
++                } else {
++                    remorse.execute(qsTrId("sailfishos-patch-quicksettings-powermenu-la-restarting_home"), function() { systemdServiceIface.call("Restart", ["replace"]) } )
++                }
 +            }
-+
 +            iconSource: "image://theme/graphic-home"
 +
 +            opacity: shutdownButton.opacity
@@ -848,7 +877,7 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
              height: powerMenu.itemHeight
   
              clip: powerTransition.running
-@@ -152,6 +223,103 @@
+@@ -152,6 +228,105 @@
   
              opacity: shutdownButton.opacity
          }
@@ -903,18 +932,19 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
 +            color: Theme.rgba(Theme.highlightBackgroundColor, Theme.highlightBackgroundOpacity)
 +            MouseArea {
 +                width: parent.width
-+                height: (favoriteSettingsLoader.active || quickActionsLoader.active) ? settingsColumn.height + Theme.paddingSmall : 0
++                height: (favoriteSettingsLoader.active || quickActionsLoader.active) ? shortcutsColumn.height + Theme.paddingSmall : 0
 +                onClicked: Lipstick.compositor.eventsLayer.shortcutsHousekeeping = false
 +                onPressAndHold: if (deviceLock.state < 1) {Lipstick.compositor.eventsLayer.shortcutsHousekeeping = !Lipstick.compositor.eventsLayer.shortcutsHousekeeping}
 +
 +                Column {
-+                    id: settingsColumn
-+                    spacing: Theme.paddingLarge + Theme.paddingMedium
++                    id: shortcutsColumn
 +                    width: parent.width
 +
 +                    FavoriteSettingsLoader {
 +                        id: favoriteSettingsLoader
++
 +                        width: parent.width
++                        padding: Theme.paddingLarge + Theme.paddingMedium
 +                        active: shortcutsEnabled.value
 +                        showListFavorites: true
 +                        columns: (isLandscape && powermenuSettings.wide) ?
@@ -926,6 +956,7 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
 +                        id: quickActionsLoader
 +                        iconOffset: favoriteSettingsLoader.firstColumnVCenterOffset
 +                        width: parent.width
++                        padding: Theme.paddingMedium
 +                        active: actionsEnabled.value
 +                        iconSize: Math.floor(Theme.iconSizeMedium * 0.8)
 +                        columns: (isLandscape && powermenuSettings.wide) ? 3 : 2
@@ -952,7 +983,7 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
      }
  
      delegate: Item {
-@@ -171,6 +339,7 @@
+@@ -171,6 +346,7 @@
              }
          }
  
@@ -960,7 +991,7 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
          width: listItem.width
          height: listItem.height
  
-@@ -182,10 +351,6 @@
+@@ -182,10 +358,6 @@
          ListItem {
              id: listItem
  
@@ -971,7 +1002,7 @@ diff -Nru jolla/usr/share/lipstick-jolla-home-qt5/powerkey/PowerKeyMenu.qml alin
              width: powerMenu.width
              contentHeight: powerMenu.itemHeight
  
-@@ -387,6 +552,47 @@
+@@ -387,6 +559,47 @@
          iface: "com.nokia.dsme.request"
      }
  
